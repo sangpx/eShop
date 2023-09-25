@@ -1,6 +1,7 @@
 ﻿using eShop.Application.Catalogs.Products.Interface;
 using eShop.ViewModels.Catalogs.ProductImages;
 using eShop.ViewModels.Catalogs.Products;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace eShop.BackendAPI.Controllers
 
         //https://localhost:port/api/Products?pageIndex=1&pageSize=10&CategoryId=5
         [HttpGet("{languageId}")]
+        [Authorize]
         public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetPublicProductPagingRequest request)
         {
             var data = await _publicProductService.GetAllById(languageId, request);
