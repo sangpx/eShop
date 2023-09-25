@@ -1,11 +1,14 @@
 using eShop.Application.Catalogs.Products.Implement;
 using eShop.Application.Catalogs.Products.Interface;
 using eShop.Application.Common;
+using eShop.Application.Systems.Users;
 using eShop.Database.EF;
+using eShop.Database.Entities;
 using eShop.Utilities.Constants;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -36,12 +39,25 @@ namespace eShop.BackendAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            //Add DbContext
             services.AddDbContext<EShopDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString(SystemConstants.MainConnectionString)));
+
+            services.AddIdentity<AppUser, AppRole>()
+                .AddEntityFrameworkStores<EShopDbContext>()
+                .AddDefaultTokenProviders();
+
+            //Add Dependency Injection
             services.AddTransient<IPublicProductService, PublicProductService>();
             services.AddTransient<IManageProductService, ManageProductService>();
             services.AddTransient<IStorageService, FileStorageService>();
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
+            services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
+            services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
 
+            //Add Swagger
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
@@ -77,8 +93,6 @@ namespace eShop.BackendAPI
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "eShop BackendAPI");
             });
-
-
         }
     }
 }
