@@ -23,7 +23,7 @@ namespace eShop.BackendAPI.Controllers
         //Login
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login([FromForm] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -34,16 +34,13 @@ namespace eShop.BackendAPI.Controllers
             {
                 return BadRequest("UserName or Password is incorrect!");
             }
-            return Ok(new
-            {
-                jwtToken = resultToken
-            });
+            return Ok(resultToken);
         }
 
         //Register
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<IActionResult> Register([FromForm] RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             if (!ModelState.IsValid)
             {
