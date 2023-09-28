@@ -57,7 +57,6 @@ namespace eShop.BackendAPI
                 .AddDefaultTokenProviders();
 
             //Add Dependency Injection
-            services.AddTransient<IPublicProductService, PublicProductService>();
             services.AddTransient<IManageProductService, ManageProductService>();
             services.AddTransient<IStorageService, FileStorageService>();
             services.AddTransient<IUserService, UserService>();

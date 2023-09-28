@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Office2016.Excel;
 using eShop.Application.Systems.Users;
+using eShop.ViewModels.Catalogs.Products;
 using eShop.ViewModels.Systems.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -9,8 +10,9 @@ using System.Threading.Tasks;
 
 namespace eShop.BackendAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/users")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -38,7 +40,7 @@ namespace eShop.BackendAPI.Controllers
         }
 
         //Register
-        [HttpPost("register")]
+        [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
@@ -52,6 +54,14 @@ namespace eShop.BackendAPI.Controllers
                 return BadRequest("Register don't successful!");
             }
             return Ok();
+        }
+
+        //https://localhost:port/api/users/paging?PageIndex=1&PageSize=7
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetAllPaging([FromQuery] GetUserPagingRequest request)
+        {
+            var data = await _userService.GetUserPagingAsync(request);
+            return Ok(data);
         }
     }
 }

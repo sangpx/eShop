@@ -10,29 +10,27 @@ using static System.Net.Mime.MediaTypeNames;
 namespace eShop.BackendAPI.Controllers
 {
     // api/products
-    [Route("api/[controller]")]
+    [Route("api/products")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly IPublicProductService _publicProductService;
         private readonly IManageProductService _manageProductService;
 
-        public ProductsController(IPublicProductService publicProductService, IManageProductService manageProductService)
+        public ProductsController(IManageProductService manageProductService)
         {
-            _publicProductService = publicProductService;
             _manageProductService = manageProductService;
         }
 
-        //https://localhost:port/api/Products?pageIndex=1&pageSize=10&CategoryId=5
+        //https://localhost:port/api/products?pageIndex=1&pageSize=10&CategoryId=5
         [HttpGet("{languageId}")]
         [Authorize]
         public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetPublicProductPagingRequest request)
         {
-            var data = await _publicProductService.GetAllById(languageId, request);
+            var data = await _manageProductService.GetAllById(languageId, request);
             return Ok(data);
         }
 
-        //https://localhost:port/api/Products/{productId}/{languageId}
+        //https://localhost:port/api/products/{productId}/{languageId}
         [HttpGet("{productId}/{languageId}")]
         public async Task<IActionResult> GetById([FromQuery] int productId, string languageId)
         {
@@ -97,7 +95,7 @@ namespace eShop.BackendAPI.Controllers
             return BadRequest();
         }
 
-        //https://localhost:port/api/Products/{images}/{imageId}
+        //https://localhost:port/api/products/{images}/{imageId}
         [HttpGet("{productId}/images/{imageId}")]
         public async Task<IActionResult> GetImageById(int imageId)
         {
