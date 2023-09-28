@@ -2,6 +2,7 @@
 using eShop.ViewModels.Systems.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Logging;
@@ -25,18 +26,28 @@ namespace eShop.AdminApp.Controllers
             _configuration = configuration;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string keyWord, int pageIndex = 1, int pageSize = 10)
+        {
+            var session = HttpContext.Session.GetString("Token");
+            var request = new GetUserPagingRequest()
+            {
+                BearerToken = session,
+                KeyWord = keyWord,
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
+            var data = await _userAPIClient.GetUsersPagingsCallAsync(request);
+            return View(data);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Login()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return View();
         }
 
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
-
+        //Login
         [HttpPost]
         public async Task<IActionResult> Login(LoginRequest request)
         {
@@ -45,7 +56,7 @@ namespace eShop.AdminApp.Controllers
                 return View(ModelState);
             }
 
-            var token = await _userAPIClient.Login(request);
+            var token = await _userAPIClient.LoginCallAsync(request);
             // Giai ma Token
             var userPrincipal = this.ValidateToken(token);
 
@@ -54,6 +65,10 @@ namespace eShop.AdminApp.Controllers
                 ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
                 IsPersistent = true
             };
+
+            //Luu Token vao mot Session
+            HttpContext.Session.SetString("Token", token);
+
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 userPrincipal,
@@ -82,10 +97,12 @@ namespace eShop.AdminApp.Controllers
             return principal;
         }
 
+        //Logout
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Remove("Token");
             return RedirectToAction("Login", "User");
         }
     }

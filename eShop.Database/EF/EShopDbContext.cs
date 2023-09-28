@@ -12,14 +12,14 @@ namespace eShop.Database.EF
 {
     public class EShopDbContext : IdentityDbContext<AppUser, AppRole, Guid>
     {
-        public EShopDbContext(DbContextOptions<EShopDbContext> options) : base(options) { }
-
-
+        public EShopDbContext(DbContextOptions<EShopDbContext> options) : base(options)
+        {
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
             #region Config Fluent API
+
             modelBuilder.ApplyConfiguration(new AppConfigConfigurations());
             modelBuilder.ApplyConfiguration(new ProductConfigurations());
             modelBuilder.ApplyConfiguration(new CategoryConfigurations());
@@ -38,7 +38,6 @@ namespace eShop.Database.EF
             modelBuilder.ApplyConfiguration(new SlideConfigurations());
             modelBuilder.ApplyConfiguration(new TransactionConfigurations());
 
-
             modelBuilder.Entity<IdentityUserClaim<Guid>>()
                 .ToTable("AppUserClaims");
             modelBuilder.Entity<IdentityUserRole<Guid>>()
@@ -52,20 +51,18 @@ namespace eShop.Database.EF
             modelBuilder.Entity<IdentityUserToken<Guid>>()
                 .ToTable("AppUserTokens")
                 .HasKey(x => x.UserId);
-            #endregion
 
+            #endregion Config Fluent API
 
             #region Seeding Data
 
             modelBuilder.Seed();
 
-            #endregion
-
-
+            #endregion Seeding Data
         }
 
-
         #region DbSet
+
         public DbSet<AppConfig> AppConfigs { get; set; }
         public DbSet<AppRole> AppRoles { get; set; }
         public DbSet<AppUser> AppUsers { get; set; }
@@ -83,6 +80,7 @@ namespace eShop.Database.EF
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<ProductTranslation> ProductTranslations { get; set; }
         public DbSet<ProductInCategory> ProductInCategories { get; set; }
-        #endregion
+
+        #endregion DbSet
     }
 }
