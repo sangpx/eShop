@@ -1,6 +1,6 @@
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
-using eShop.Application.Catalogs.Products.Implement;
-using eShop.Application.Catalogs.Products.Interface;
+using eShop.Application.Catalogs.Categories;
+using eShop.Application.Catalogs.Products;
 using eShop.Application.Common;
 using eShop.Application.Systems.Users;
 using eShop.Database.EF;
@@ -60,6 +60,7 @@ namespace eShop.BackendAPI
             services.AddTransient<IManageProductService, ManageProductService>();
             services.AddTransient<IStorageService, FileStorageService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ICategoryService, CategoryService>();
             services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
             services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
             services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();

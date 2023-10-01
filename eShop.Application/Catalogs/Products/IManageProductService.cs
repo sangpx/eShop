@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace eShop.Application.Catalogs.Products.Interface
+namespace eShop.Application.Catalogs.Products
 {
     public interface IManageProductService
     {
