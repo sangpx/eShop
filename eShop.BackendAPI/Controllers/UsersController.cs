@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Office2016.Excel;
 using eShop.Application.Systems.Users;
 using eShop.ViewModels.Catalogs.Products;
+using eShop.ViewModels.Common;
 using eShop.ViewModels.Systems.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -36,7 +37,12 @@ namespace eShop.BackendAPI.Controllers
             {
                 return BadRequest("UserName or Password is incorrect!");
             }
-            return Ok(resultToken);
+            return Ok(new ApiResponse
+            {
+                Success = true,
+                Message = "Login Successfully!",
+                Data = resultToken
+            });
         }
 
         //Register
@@ -53,7 +59,12 @@ namespace eShop.BackendAPI.Controllers
             {
                 return BadRequest("Register don't successful!");
             }
-            return Ok();
+            return Ok(new ApiResponse
+            {
+                Success = true,
+                Message = "Register Successfully!",
+                Data = result
+            });
         }
 
         //https://localhost:port/api/users/paging?PageIndex=1&PageSize=7
@@ -61,7 +72,12 @@ namespace eShop.BackendAPI.Controllers
         public async Task<IActionResult> GetAllPaging([FromQuery] GetUserPagingRequest request)
         {
             var data = await _userService.GetUserPagingAsync(request);
-            return Ok(data);
+            return Ok(new ApiResponse
+            {
+                Success = true,
+                Message = "GetPaging Successfully!",
+                Data = data
+            });
         }
     }
 }

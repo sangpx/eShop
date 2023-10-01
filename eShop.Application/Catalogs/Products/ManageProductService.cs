@@ -1,6 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Wordprocessing;
-using eShop.Application.Catalogs.Products.Interface;
 using eShop.Application.Common;
 using eShop.Database.EF;
 using eShop.Database.Entities;
@@ -20,7 +19,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace eShop.Application.Catalogs.Products.Implement
+namespace eShop.Application.Catalogs.Products
 {
     public class ManageProductService : IManageProductService
     {
@@ -30,8 +29,8 @@ namespace eShop.Application.Catalogs.Products.Implement
 
         public ManageProductService(EShopDbContext dbContext, IStorageService storage)
         {
-            this._dbContext = dbContext;
-            this._storage = storage;
+            _dbContext = dbContext;
+            _storage = storage;
         }
 
         //Get All Product Paging
@@ -147,7 +146,7 @@ namespace eShop.Application.Catalogs.Products.Implement
                         Caption = "Image",
                         DateCreated = DateTime.Now,
                         FileSize = productCreateRequest.ThumbnailImage.Length,
-                        ImagePath = await this.SaveImage(productCreateRequest.ThumbnailImage),
+                        ImagePath = await SaveImage(productCreateRequest.ThumbnailImage),
                         IsDefault = true,
                         SortOrder = 1
                     }
@@ -181,7 +180,7 @@ namespace eShop.Application.Catalogs.Products.Implement
                 if (thumbnailImage != null)
                 {
                     thumbnailImage.FileSize = productUpdateRequest.ThumbnailImage.Length;
-                    thumbnailImage.ImagePath = await this.SaveImage(productUpdateRequest.ThumbnailImage);
+                    thumbnailImage.ImagePath = await SaveImage(productUpdateRequest.ThumbnailImage);
                     _dbContext.ProductImages.Update(thumbnailImage);
                 }
             }
@@ -252,7 +251,7 @@ namespace eShop.Application.Catalogs.Products.Implement
             };
             if (request.ImageFile != null)
             {
-                productImage.ImagePath = await this.SaveImage(request.ImageFile);
+                productImage.ImagePath = await SaveImage(request.ImageFile);
                 productImage.FileSize = request.ImageFile.Length;
             }
 
@@ -271,7 +270,7 @@ namespace eShop.Application.Catalogs.Products.Implement
             }
             if (request.ImageFile != null)
             {
-                productImage.ImagePath = await this.SaveImage(request.ImageFile);
+                productImage.ImagePath = await SaveImage(request.ImageFile);
                 productImage.FileSize = request.ImageFile.Length;
             }
 
