@@ -2,6 +2,7 @@ using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using eShop.Application.Catalogs.Categories;
 using eShop.Application.Catalogs.Products;
 using eShop.Application.Common;
+using eShop.Application.Systems.Roles;
 using eShop.Application.Systems.Users;
 using eShop.Database.EF;
 using eShop.Database.Entities;
@@ -61,11 +62,16 @@ namespace eShop.BackendAPI
             services.AddTransient<IStorageService, FileStorageService>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ICategoryService, CategoryService>();
+            services.AddTransient<IRoleService, RoleService>();
+            services.AddTransient<IValidator<LoginRequest>, LoginRequestValidation>();
+            services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidation>();
             services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
             services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
             services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
-            services.AddTransient<IValidator<LoginRequest>, LoginRequestValidation>();
-            services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidation>();
+
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 
             //Add Swagger
             services.AddSwaggerGen(options =>

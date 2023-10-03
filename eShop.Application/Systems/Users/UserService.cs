@@ -125,5 +125,42 @@ namespace eShop.Application.Systems.Users
             }
             return false;
         }
+
+        public async Task<bool> RoleAssignAsync(Guid id, RoleAssignRequest request)
+        {
+            //Lay ra User
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            //Neu TH user ko ton tai
+            if (user == null)
+            {
+                return false;
+            }
+            //Kiem tra Role day co ton tai ko -> check
+            // Lấy danh sách các vai trò cần xóa
+            var removeRole = request.Roles.Where(x => x.Selected == false).Select(x => x.Name).ToList();
+
+            foreach (var roleName in removeRole)
+            {
+                // add role ma thang nao chua ton tai
+                if (await _userManager.IsInRoleAsync(user, roleName) == true)
+                {
+                    await _userManager.RemoveFromRoleAsync(user, roleName);
+                }
+            }
+
+            await _userManager.RemoveFromRolesAsync(user, removeRole);
+
+            // trong TH th nao ma ton tai
+            var addedRole = request.Roles.Where(x => x.Selected == true).Select(x => x.Name).ToList();
+            foreach (var roleName in addedRole)
+            {
+                // add role ma thang nao chua ton tai
+                if (await _userManager.IsInRoleAsync(user, roleName) == false)
+                {
+                    await _userManager.AddToRoleAsync(user, roleName);
+                }
+            }
+            return true;
+        }
     }
 }

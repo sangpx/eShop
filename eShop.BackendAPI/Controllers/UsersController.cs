@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Threading.Tasks;
 
 namespace eShop.BackendAPI.Controllers
@@ -77,6 +78,21 @@ namespace eShop.BackendAPI.Controllers
                 Success = true,
                 Message = "GetPaging Successfully!",
                 Data = data
+            });
+        }
+
+        //Assign Role
+        [HttpPut("{id}/roles")]
+        public async Task<IActionResult> RoleAssign(Guid id, [FromBody] RoleAssignRequest request)
+        {
+            if (!ModelState.IsValid) { return BadRequest(ModelState); }
+            var result = await _userService.RoleAssignAsync(id, request);
+            if (!result) { return BadRequest(result); }
+            return Ok(new ApiResponse
+            {
+                Success = true,
+                Message = "Register Role Successfully!",
+                Data = result
             });
         }
     }
