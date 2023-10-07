@@ -31,7 +31,7 @@ namespace eShop.AdminApp.Services.Implement
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
 
             //Gan Header vao moi request de Authorization
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", request.BearerToken);
+            //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", request.BearerToken);
 
             var response = await client.GetAsync($"/api/users/paging?" +
                 $"pageIndex={request.PageIndex}&pageSize={request.PageSize}&keyWord={request.KeyWord}");

@@ -23,14 +23,34 @@ namespace eShop.BackendAPI.Controllers
             _manageProductService = manageProductService;
         }
 
-        //https://localhost:port/api/products?pageIndex=1&pageSize=10&CategoryId=5
-        [HttpGet("{languageId}")]
+        ////https://localhost:port/api/products?pageIndex=1&pageSize=10&CategoryId=5
+        //[HttpGet("{languageId}")]
+        //[Authorize]
+        //public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetPublicProductPagingRequest request)
+        //{
+        //    try
+        //    {
+        //        var data = await _manageProductService.GetAllById(languageId, request);
+        //        return Ok(new ApiResponse
+        //        {
+        //            Success = true,
+        //            Message = "Successfully!",
+        //            Data = data
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { Message = ex.Message });
+        //    }
+        //}
+
+        [HttpGet("paging")]
         [Authorize]
-        public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetPublicProductPagingRequest request)
+        public async Task<IActionResult> GetAllPaging([FromQuery] GetManageProductPagingRequest request)
         {
             try
             {
-                var data = await _manageProductService.GetAllById(languageId, request);
+                var data = await _manageProductService.GetAllPaging(request);
                 return Ok(new ApiResponse
                 {
                     Success = true,

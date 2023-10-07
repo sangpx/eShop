@@ -31,7 +31,7 @@ namespace eShop.AdminApp.Controllers
             var session = HttpContext.Session.GetString("Token");
             var request = new GetUserPagingRequest()
             {
-                BearerToken = session,
+                //BearerToken = session,
                 KeyWord = keyWord,
                 PageIndex = pageIndex,
                 PageSize = pageSize

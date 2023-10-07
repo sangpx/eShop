@@ -1,4 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Office2016.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using eShop.Application.Common;
 using eShop.Database.EF;
@@ -39,20 +41,24 @@ namespace eShop.Application.Catalogs.Products
             //1. Select join
             var query = from p in _dbContext.Products
                         join pt in _dbContext.ProductTranslations on p.Id equals pt.ProductId
-                        join pic in _dbContext.ProductInCategories on p.Id equals pic.ProductId
-                        join c in _dbContext.Categories on pic.CategoryId equals c.Id
-                        where pt.Name.Contains(request.KeyWord)
-                        select new { p, pt, pic };
+                        join pic in _dbContext.ProductInCategories on p.Id equals pic.ProductId into ppic
+                        from pic in ppic.DefaultIfEmpty()
+                        join c in _dbContext.Categories on pic.CategoryId equals c.Id into picc
+                        from c in picc.DefaultIfEmpty()
+                        join pi in _dbContext.ProductImages on p.Id equals pi.ProductId into ppi
+                        from pi in ppi.DefaultIfEmpty()
+                        where pt.LanguageId == request.LanguageId && pi.IsDefault == true
+                        select new { p, pt, pic, pi };
 
             //2. filter
-            if (!string.IsNullOrEmpty(request.KeyWord))
+            if (!string.IsNullOrEmpty(request.Keyword))
             {
-                query = query.Where(x => x.pt.Name.Contains(request.KeyWord));
+                query = query.Where(x => x.pt.Name.Contains(request.Keyword));
             }
 
-            if (request.CategoryIds.Count > 0)
+            if (request.CategoryId != null && request.CategoryId != 0)
             {
-                query = query.Where(p => request.CategoryIds.Contains(p.pic.CategoryId));
+                query = query.Where(p => p.pic.CategoryId == request.CategoryId);
             }
             //3. paging
             int totalRow = await query.CountAsync();
@@ -76,13 +82,15 @@ namespace eShop.Application.Catalogs.Products
                     ViewCount = x.p.ViewCount
                 }).ToListAsync();
             //4. select and projection
-            var pageResult = new PagedResult<ProductViewModel>()
+            var pagedResult = new PagedResult<ProductViewModel>()
             {
-                TotalRecord = totalRow,
-                Items = data
+                TotalRecords = totalRow,
+                Items = data,
+                PageIndex = request.PageIndex,
+                PageSize = request.PageSize
             };
 
-            return pageResult;
+            return pagedResult;
         }
 
         //Get Product by Id
@@ -366,12 +374,15 @@ namespace eShop.Application.Catalogs.Products
                     ViewCount = x.p.ViewCount
                 }).ToListAsync();
             //4. select and projection
-            var pageResult = new PagedResult<ProductViewModel>()
+            var pagedResult = new PagedResult<ProductViewModel>()
             {
-                TotalRecord = totalRow,
-                Items = data
+                TotalRecords = totalRow,
+                Items = data,
+                PageIndex = getProductPagingRequest.PageIndex,
+                PageSize = getProductPagingRequest.PageSize
             };
-            return pageResult;
+
+            return pagedResult;
         }
     }
 }

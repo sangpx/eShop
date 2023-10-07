@@ -31,7 +31,6 @@ namespace eShop.Application.Catalogs.Categories
             {
                 Id = x.c.Id,
                 Name = x.ct.Name,
-                ParentId = x.c.ParentId,
             }).ToListAsync();
         }
 
