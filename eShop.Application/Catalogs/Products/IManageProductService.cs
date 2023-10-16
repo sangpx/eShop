@@ -41,5 +41,9 @@ namespace eShop.Application.Catalogs.Products
         Task<ProductImageViewModel> GetImageById(int imageId);
 
         Task<PagedResult<ProductViewModel>> GetAllById(string languageId, GetPublicProductPagingRequest getProductPagingRequest);
+
+        Task<bool> CategoryAssignAsync(int id, CategoryAssignRequest request);
+
+        Task<List<ProductViewModel>> GetFeaturedProducts(int take, string languageId);
     }
 }

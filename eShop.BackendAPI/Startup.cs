@@ -1,5 +1,7 @@
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+﻿using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using eShop.Application.Catalogs.Carts;
 using eShop.Application.Catalogs.Categories;
+using eShop.Application.Catalogs.Orders;
 using eShop.Application.Catalogs.Products;
 using eShop.Application.Common;
 using eShop.Application.Systems.Roles;
@@ -45,6 +47,14 @@ namespace eShop.BackendAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //fluent validator
+            // ta co hai cach register validator
+            // 1. register le tung cai view model nhu vay
+            //services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
+            //services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();
+
+            // 2. dang ky 1 luc het tat ca, se tu động nhận diện các lớp kế thừa AbstractValidator
+            // đăng kí tất cả những validator mà cùng assembly ( dll ) với LoginRequestValidator
             services.AddControllers()
                 //Dky tat ca nhung Validator cung co Assembly
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidation>());
@@ -53,6 +63,7 @@ namespace eShop.BackendAPI
             services.AddDbContext<EShopDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString(SystemConstants.MainConnectionString)));
 
+            // Can them service nay khi viet API dang ky dang nhap
             services.AddIdentity<AppUser, AppRole>()
                 .AddEntityFrameworkStores<EShopDbContext>()
                 .AddDefaultTokenProviders();
@@ -62,6 +73,8 @@ namespace eShop.BackendAPI
             services.AddTransient<IStorageService, FileStorageService>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ICategoryService, CategoryService>();
+            services.AddTransient<IOrderService, OrderService>();
+            services.AddTransient<ICartService, CartService>();
             services.AddTransient<IRoleService, RoleService>();
             services.AddTransient<IValidator<LoginRequest>, LoginRequestValidation>();
             services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidation>();
@@ -73,6 +86,8 @@ namespace eShop.BackendAPI
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
 );
 
+            services.AddMemoryCache();
+
             //Add Swagger
             services.AddSwaggerGen(options =>
             {
@@ -81,7 +96,7 @@ namespace eShop.BackendAPI
                     Title = "eShop BackendAPI",
                     Version = "v1"
                 });
-                //Add Authorization header for Swagger in Browser
+                //Mỗi khi gọi swagger sẽ truyền vào một header tên Bearer để authentication này
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
                     Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n
@@ -92,7 +107,8 @@ namespace eShop.BackendAPI
                     Type = SecuritySchemeType.ApiKey,
                     Scheme = "Bearer"
                 });
-                //Add Rule Authorization
+                // Định nghĩa bảo mật để khi chạy swagger ta phải đăng nhập để lấy token
+                // Token đó dùng để Authorize mở khóa các chức năg HTTP
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement()
                 {
                     {
@@ -125,7 +141,9 @@ namespace eShop.BackendAPI
                 opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
 
-            //Add Jwt Bearer
+            // Add Jwt Bearer
+            // Mỗi khi nhận được token thì sẽ giải mã validate những thuộc tính dưới đây
+            // Nó sẽ tự giải mã và validate, nếu không đúng thì sẽ trả về lỗi 401
                 .AddJwtBearer(option =>
                 {
                     option.RequireHttpsMetadata = false;

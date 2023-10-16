@@ -38,12 +38,7 @@ namespace eShop.BackendAPI.Controllers
             {
                 return BadRequest("UserName or Password is incorrect!");
             }
-            return Ok(new ApiResponse
-            {
-                Success = true,
-                Message = "Login Successfully!",
-                Data = resultToken
-            });
+            return Ok(resultToken);
         }
 
         //Register
@@ -68,7 +63,7 @@ namespace eShop.BackendAPI.Controllers
             });
         }
 
-        //https://localhost:port/api/users/paging?PageIndex=1&PageSize=7
+        //https://localhost:port/api/users/paging?PageIndex=1&PageSize=7&keyWord=..
         [HttpGet("paging")]
         public async Task<IActionResult> GetAllPaging([FromQuery] GetUserPagingRequest request)
         {

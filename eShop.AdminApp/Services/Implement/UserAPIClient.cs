@@ -29,14 +29,14 @@ namespace eShop.AdminApp.Services.Implement
             var client = _clientFactory.CreateClient();
             //Port goc cua web
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-
             //Gan Header vao moi request de Authorization
-            //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", request.BearerToken);
-
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", request.BearerToken);
+            //Call API
             var response = await client.GetAsync($"/api/users/paging?" +
                 $"pageIndex={request.PageIndex}&pageSize={request.PageSize}&keyWord={request.KeyWord}");
             var body = await response.Content.ReadAsStringAsync();
-            var users = JsonConvert.DeserializeObject<PagedResult<UserViewModel>>(body);
+            var users = JsonConvert.DeserializeObject<PagedResult<UserViewModel>>(body); //chuyen doi kieu
             return users;
         }
 
@@ -53,6 +53,7 @@ namespace eShop.AdminApp.Services.Implement
             var client = _clientFactory.CreateClient();
             //Port goc cua web
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            //Call API
             var response = await client.PostAsync("/api/users/login", httpContent);
             var token = await response.Content.ReadAsStringAsync();
             return token;
