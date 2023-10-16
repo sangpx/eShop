@@ -46,7 +46,6 @@ namespace eShop.Application.Systems.Users
                 query = query.Where(x => x.UserName.Contains(request.KeyWord) ||
                     x.PhoneNumber.Contains(request.KeyWord));
             }
-
             //3. paging
             int totalRow = await query.CountAsync();
             var data = await query
@@ -54,12 +53,12 @@ namespace eShop.Application.Systems.Users
                 .Take(request.PageSize)
                 .Select(x => new UserViewModel()
                 {
+                    Id = x.Id,
                     UserName = x.UserName,
-                    PhoneNumber = x.PhoneNumber,
-                    Email = x.Email,
                     FirstName = x.FirstName,
                     LastName = x.LastName,
-                    Id = x.Id,
+                    Email = x.Email,
+                    PhoneNumber = x.PhoneNumber,
                 }).ToListAsync();
             //4. select and projection
             var pageResult = new PagedResult<UserViewModel>()
@@ -72,6 +71,7 @@ namespace eShop.Application.Systems.Users
             return pageResult;
         }
 
+        //LoginAsync
         public async Task<string> LoginAsync(LoginRequest request)
         {
             var user = await _userManager.FindByNameAsync(request.UserName);
@@ -108,8 +108,20 @@ namespace eShop.Application.Systems.Users
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        //RegisterAsync
         public async Task<bool> RegisterAsync(RegisterRequest request)
         {
+            // Kiểm tra UserName đã tồn tại chưa
+            if (await _userManager.FindByNameAsync(request.UserName) != null)
+            {
+                return false;
+            }
+            // Kiểm tra Email đã tồn tại chưa
+            if (await _userManager.FindByEmailAsync(request.Email) != null)
+            {
+                return false;
+            }
+
             var user = new AppUser()
             {
                 Dob = request.DateOfBirth,
@@ -128,6 +140,7 @@ namespace eShop.Application.Systems.Users
             return false;
         }
 
+        //Assign Role
         public async Task<bool> RoleAssignAsync(Guid id, RoleAssignRequest request)
         {
             //Lay ra User
@@ -137,8 +150,11 @@ namespace eShop.Application.Systems.Users
             {
                 return false;
             }
-            //Kiem tra Role day co ton tai ko -> check
-            // Lấy danh sách các vai trò cần xóa
+
+            /* Khi gán quyền, người dùng bấm lưu lại thì kiểm tra xem role nào đã bỏ chọn
+             * Sau đó lấy ra danh sách role đã bỏ chọn ( selected == false )
+             * Dựa vào danh sách này sẽ tương tác với db và remove các role đã bị bỏ chọn khỏi user
+             */
             var removeRole = request.Roles.Where(x => x.Selected == false).Select(x => x.Name).ToList();
 
             foreach (var roleName in removeRole)

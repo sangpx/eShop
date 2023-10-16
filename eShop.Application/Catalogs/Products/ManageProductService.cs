@@ -10,6 +10,7 @@ using eShop.ViewModels.Catalogs.ProductImages;
 using eShop.ViewModels.Catalogs.Products;
 using eShop.ViewModels.Common;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace eShop.Application.Catalogs.Products
 {
@@ -39,6 +41,7 @@ namespace eShop.Application.Catalogs.Products
         public async Task<PagedResult<ProductViewModel>> GetAllPaging(GetManageProductPagingRequest request)
         {
             //1. Select join
+            //Su dung left join de gan san pham vao danh muc
             var query = from p in _dbContext.Products
                         join pt in _dbContext.ProductTranslations on p.Id equals pt.ProductId
                         join pic in _dbContext.ProductInCategories on p.Id equals pic.ProductId into ppic
@@ -79,7 +82,8 @@ namespace eShop.Application.Catalogs.Products
                     SeoDescription = x.pt.SeoDescription,
                     SeoTitle = x.pt.SeoTitle,
                     Stock = x.p.Stock,
-                    ViewCount = x.p.ViewCount
+                    ViewCount = x.p.ViewCount,
+                    ThumbnailImage = x.pi.ImagePath
                 }).ToListAsync();
             //4. select and projection
             var pagedResult = new PagedResult<ProductViewModel>()
@@ -99,6 +103,12 @@ namespace eShop.Application.Catalogs.Products
             var product = await _dbContext.Products.FindAsync(id);
             var productTranslation = await _dbContext.ProductTranslations
                 .FirstOrDefaultAsync(x => x.ProductId == id && x.LanguageId == languageId);
+            var categories = await (from c in _dbContext.Categories
+                                    join ct in _dbContext.CategoriesTranslation on c.Id equals ct.CategoryId
+                                    join pic in _dbContext.ProductInCategories on c.Id equals pic.CategoryId
+                                    where pic.ProductId == id && ct.LanguageId == languageId
+                                    select ct.Name).ToListAsync();
+            var image = await _dbContext.ProductImages.Where(x => x.ProductId == id && x.IsDefault == true).FirstOrDefaultAsync();
 
             var productViewModel = new ProductViewModel()
             {
@@ -114,7 +124,8 @@ namespace eShop.Application.Catalogs.Products
                 OriginalPrice = product.OriginalPrice,
                 Price = product.Price,
                 Stock = product.Stock,
-                ViewCount = product.ViewCount
+                ViewCount = product.ViewCount,
+                ThumbnailImage = image != null ? image.ImagePath : "no-image.jpg",
             };
             return productViewModel;
         }
@@ -383,6 +394,76 @@ namespace eShop.Application.Catalogs.Products
             };
 
             return pagedResult;
+        }
+
+        //assign Category
+        public async Task<bool> CategoryAssignAsync(int id, CategoryAssignRequest request)
+        {
+            //Lay ra product
+            var product = await _dbContext.Products.FindAsync(id);
+            //Neu TH user ko ton tai
+            if (product == null)
+            {
+                return false;
+            }
+
+            foreach (var category in request.Categories)
+            {
+                var productInCategory = await _dbContext.ProductInCategories
+                    .FirstOrDefaultAsync(x => x.CategoryId == int.Parse(category.Id) && x.ProductId == id);
+                if (productInCategory != null && category.Selected == false)
+                {
+                    _dbContext.ProductInCategories.Remove(productInCategory);
+                }
+                else if (productInCategory == null && category.Selected == true)
+                {
+                    await _dbContext.ProductInCategories.AddAsync(new ProductInCategory()
+                    {
+                        CategoryId = int.Parse(category.Id),
+                        ProductId = id
+                    });
+                }
+            }
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+
+        //GetFeatureProducts
+        public async Task<List<ProductViewModel>> GetFeaturedProducts(int take, string languageId)
+        {
+            //1. Select join
+            //Su dung left join de gan san pham vao danh muc
+            var query = from p in _dbContext.Products
+                        join pt in _dbContext.ProductTranslations on p.Id equals pt.ProductId
+                        join pic in _dbContext.ProductInCategories on p.Id equals pic.ProductId into ppic
+                        from pic in ppic.DefaultIfEmpty()
+                        join pi in _dbContext.ProductImages on p.Id equals pi.ProductId into ppi
+                        from pi in ppi.DefaultIfEmpty()
+                        join c in _dbContext.Categories on pic.CategoryId equals c.Id into picc
+                        from c in picc.DefaultIfEmpty()
+                        where pt.LanguageId == languageId && (pi != null || pi.IsDefault == true)
+                        && p.IsFeatured == true
+                        select new { p, pt, pic, pi };
+
+            var data = await query.OrderByDescending(x => x.p.DateCreated).Take(take)
+                .Select(x => new ProductViewModel()
+                {
+                    Id = x.p.Id,
+                    Name = x.pt.Name,
+                    Details = x.pt.Details,
+                    Description = x.pt.Description,
+                    DateCreated = x.p.DateCreated,
+                    LanguageId = x.pt.LanguageId,
+                    OriginalPrice = x.p.OriginalPrice,
+                    Price = x.p.Price,
+                    SeoAlias = x.p.SeoAlias,
+                    SeoDescription = x.pt.SeoDescription,
+                    SeoTitle = x.pt.SeoTitle,
+                    Stock = x.p.Stock,
+                    ViewCount = x.p.ViewCount,
+                    ThumbnailImage = x.pi.ImagePath
+                }).ToListAsync();
+            return data;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿@using eShop.ViewModels.Systems.Users;
 @model LoginRequest
 @{
-    Layout = null;
+    Layout = null; 
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -39,7 +39,7 @@
                     <div class="card-body p-0">
                         <!-- Nested Row within Card Body -->
                       @*  <div class="row">*@
-                            @*<div class="col-lg-6 d-none d-lg-block bg-login-img"></div>*@
+                            <div class="col-lg-6 d-none d-lg-block bg-login-img"></div>
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
@@ -57,7 +57,7 @@
                                                    asp-for="Password"
                                                    class="form-control form-control-user"
                                                    id="exampleInputPassword" 
-                                                   placeholder="Password">
+                                                   placeholder="Mật Khẩu">
                                         </div>
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small">
@@ -68,24 +68,16 @@
                                                 </label>
                                             </div>
                                         </div>
-                                        <button href="index.html" class="btn btn-primary btn-user btn-block">
+                                        <button type="submit" class="btn btn-primary btn-user btn-block">
                                             Login
                                         </button>
-                                        <hr>
-                                    <button href="index.html" class="btn btn-google btn-user btn-block">
-                                            <i class="fab fa-google fa-fw"></i> Login with Google
-                                        </button>
-                                    <button href="index.html" class="btn btn-facebook btn-user btn-block">
-                                            <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
-                                        </button>
+                                       
                                     </form>
                                     <hr>
                                     <div class="text-center">
                                         <a class="small" href="forgot-password.html">Forgot Password?</a>
                                     </div>
-                                    <div class="text-center">
-                                    <a class="small" href="register.html">Create an Account!</a>
-                                    </div>
+                                   
                                 </div>
                             </div>
                         @*</div>*@

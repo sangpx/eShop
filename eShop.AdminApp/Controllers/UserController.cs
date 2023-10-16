@@ -4,11 +4,13 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,7 +33,7 @@ namespace eShop.AdminApp.Controllers
             var session = HttpContext.Session.GetString("Token");
             var request = new GetUserPagingRequest()
             {
-                //BearerToken = session,
+                BearerToken = session,
                 KeyWord = keyWord,
                 PageIndex = pageIndex,
                 PageSize = pageSize
@@ -40,6 +42,7 @@ namespace eShop.AdminApp.Controllers
             return View(data);
         }
 
+        //Login
         [HttpGet]
         public async Task<IActionResult> Login()
         {
@@ -57,9 +60,10 @@ namespace eShop.AdminApp.Controllers
             }
 
             var token = await _userAPIClient.LoginCallAsync(request);
-            // Giai ma Token
+            // sau khi co Token ->  Giai ma Token
             var userPrincipal = this.ValidateToken(token);
 
+            //xay dung authentication Properties
             var authProperties = new AuthenticationProperties
             {
                 ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
@@ -73,7 +77,6 @@ namespace eShop.AdminApp.Controllers
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 userPrincipal,
                 authProperties);
-
             return RedirectToAction("Index", "Home");
         }
 
@@ -81,7 +84,6 @@ namespace eShop.AdminApp.Controllers
         private ClaimsPrincipal ValidateToken(string jwtToken)
         {
             IdentityModelEventSource.ShowPII = true;
-
             SecurityToken validatedToken;
             TokenValidationParameters validationParameters = new TokenValidationParameters();
 
@@ -93,7 +95,6 @@ namespace eShop.AdminApp.Controllers
 
             ClaimsPrincipal principal = new JwtSecurityTokenHandler()
                 .ValidateToken(jwtToken, validationParameters, out validatedToken);
-
             return principal;
         }
 

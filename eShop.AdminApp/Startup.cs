@@ -41,7 +41,8 @@ namespace eShop.AdminApp
 
             //Add Fluent Validation
             services.AddControllersWithViews()
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidation>());
+                .AddFluentValidation(fv =>
+                fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidation>());
 
             //Add Token ben Backend
             services.AddDistributedMemoryCache();

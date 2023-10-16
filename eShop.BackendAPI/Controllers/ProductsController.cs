@@ -2,6 +2,7 @@
 using eShop.ViewModels.Catalogs.ProductImages;
 using eShop.ViewModels.Catalogs.Products;
 using eShop.ViewModels.Common;
+using eShop.ViewModels.Systems.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -286,6 +287,49 @@ namespace eShop.BackendAPI.Controllers
                     Success = true,
                     Message = "Delete Successfully!",
                     Data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        //Assign Category
+        [HttpPut("{id}/categories")]
+        public async Task<IActionResult> CategoryAssign(int id, [FromBody] CategoryAssignRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid) { return BadRequest(ModelState); }
+                var result = await _manageProductService.CategoryAssignAsync(id, request);
+                if (!result) { return BadRequest(result); }
+                return Ok(new ApiResponse
+                {
+                    Success = true,
+                    Message = "Register Category Successfully!",
+                    Data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        //Get Feature Product
+        [HttpGet("featured/{take}/{languageId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetFeaturedProducts(int take, string languageId)
+        {
+            try
+            {
+                var products = await _manageProductService.GetFeaturedProducts(take, languageId);
+                return Ok(new ApiResponse
+                {
+                    Success = true,
+                    Message = "Successfully!",
+                    Data = products
                 });
             }
             catch (Exception ex)
