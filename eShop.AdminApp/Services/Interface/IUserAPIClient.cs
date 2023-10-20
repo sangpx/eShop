@@ -9,5 +9,7 @@ namespace eShop.AdminApp.Services.Interface
         Task<string> LoginCallAsync(LoginRequest request);
 
         Task<PagedResult<UserViewModel>> GetUsersPagingsCallAsync(GetUserPagingRequest request);
+
+        Task<bool> CreateCallAsync(RegisterRequest request);
     }
 }
