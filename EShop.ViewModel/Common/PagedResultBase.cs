@@ -5,7 +5,6 @@ using System.Text;
 namespace eShop.ViewModels.Common
 {
     // Lớp cha của lớp PagedResult
-
     public class PagedResultBase
     {
         public int PageIndex { get; set; }

@@ -85,7 +85,7 @@ namespace eShop.Application.Catalogs.Products
                     ViewCount = x.p.ViewCount,
                     ThumbnailImage = x.pi.ImagePath
                 }).ToListAsync();
-            //4. select and projection
+            ////4. select and projection
             var pagedResult = new PagedResult<ProductViewModel>()
             {
                 TotalRecords = totalRow,
@@ -93,7 +93,6 @@ namespace eShop.Application.Catalogs.Products
                 PageIndex = request.PageIndex,
                 PageSize = request.PageSize
             };
-
             return pagedResult;
         }
 
@@ -392,7 +391,6 @@ namespace eShop.Application.Catalogs.Products
                 PageIndex = getProductPagingRequest.PageIndex,
                 PageSize = getProductPagingRequest.PageSize
             };
-
             return pagedResult;
         }
 

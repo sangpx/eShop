@@ -35,7 +35,7 @@ namespace eShop.AdminApp
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(opt =>
                 {
-                    opt.LoginPath = "/User/Login/";
+                    opt.LoginPath = "/Login/Index";
                     opt.AccessDeniedPath = "/User/Forbidden";
                 });
 
@@ -45,13 +45,13 @@ namespace eShop.AdminApp
                 fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidation>());
 
             //Add Token ben Backend
-            services.AddDistributedMemoryCache();
             services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromHours(24);
+                options.IdleTimeout = TimeSpan.FromHours(30);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
+            services.AddDistributedMemoryCache();
 
             //Add DI
             services.AddTransient<IUserAPIClient, UserAPIClient>();
@@ -59,10 +59,12 @@ namespace eShop.AdminApp
             //Add Runtime khi Chay App
             IMvcBuilder builder = services.AddRazorPages();
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+#if DEBUG
             if (environment == Environments.Development)
             {
                 builder.AddRazorRuntimeCompilation();
             }
+#endif
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -63,7 +63,7 @@ namespace eShop.BackendAPI.Controllers
             });
         }
 
-        //https://localhost:port/api/users/paging?PageIndex=1&PageSize=7&keyWord=..
+        //https://localhost:port/api/users/paging?pageIndex=1&pageSize=7&keyWord=..
         [HttpGet("paging")]
         public async Task<IActionResult> GetAllPaging([FromQuery] GetUserPagingRequest request)
         {
