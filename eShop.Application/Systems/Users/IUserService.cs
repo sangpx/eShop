@@ -9,17 +9,24 @@ namespace eShop.Application.Systems.Users
 {
     public interface IUserService
     {
-        Task<string> LoginAsync(LoginRequest request);
+        //Login
+        Task<ApiResult<string>> LoginAsync(LoginRequest request);
 
-        Task<bool> RegisterAsync(RegisterRequest request);
+        //Dky User
+        Task<ApiResult<bool>> RegisterAsync(RegisterRequest request);
+
+        //Chinh sua User
+        Task<ApiResult<bool>> UpdateAsync(Guid id, UserUpdateRequest request);
 
         //Lay da ds user va tra ve Model phan trang
-        Task<PagedResult<UserViewModel>> GetUserPagingAsync(GetUserPagingRequest request);
+        Task<ApiResult<PagedResult<UserViewModel>>> GetUserPagingAsync(GetUserPagingRequest request);
 
-        //Them User
-        //Chinh sua User
         //Xoa User
 
-        Task<bool> RoleAssignAsync(Guid id, RoleAssignRequest request);
+        //Dky Quyen cho mot User
+        Task<ApiResult<bool>> RoleAssignAsync(Guid id, RoleAssignRequest request);
+
+        //Get User By Id
+        Task<ApiResult<UserViewModel>> GetUserByIdAsync(Guid id);
     }
 }

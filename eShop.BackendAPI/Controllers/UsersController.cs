@@ -34,7 +34,7 @@ namespace eShop.BackendAPI.Controllers
                 return BadRequest(ModelState);
             }
             var resultToken = await _userService.LoginAsync(request);
-            if (string.IsNullOrEmpty(resultToken))
+            if (string.IsNullOrEmpty(resultToken.ResultObj))
             {
                 return BadRequest("UserName or Password is incorrect!");
             }
@@ -50,30 +50,47 @@ namespace eShop.BackendAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
+
             var result = await _userService.RegisterAsync(request);
-            if (!result)
+            if (!result.IsSuccessed)
             {
-                return BadRequest("Register don't successful!");
+                return BadRequest(result.Message);
             }
-            return Ok(new ApiResponse
+            return Ok(result);
+        }
+
+        //PUT: http://localhost/api/users/id
+        //Update
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UserUpdateRequest request)
+        {
+            if (!ModelState.IsValid)
             {
-                Success = true,
-                Message = "Register Successfully!",
-                Data = result
-            });
+                return BadRequest(ModelState);
+            }
+
+            var result = await _userService.UpdateAsync(id, request);
+            if (!result.IsSuccessed)
+            {
+                return BadRequest(result.Message);
+            }
+            return Ok(result);
         }
 
         //https://localhost:port/api/users/paging?pageIndex=1&pageSize=7&keyWord=..
         [HttpGet("paging")]
         public async Task<IActionResult> GetAllPaging([FromQuery] GetUserPagingRequest request)
         {
-            var data = await _userService.GetUserPagingAsync(request);
-            return Ok(new ApiResponse
-            {
-                Success = true,
-                Message = "GetPaging Successfully!",
-                Data = data
-            });
+            var users = await _userService.GetUserPagingAsync(request);
+            return Ok(users);
+        }
+
+        //https://localhost:port/api/users/id
+        [HttpGet("id")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var user = await _userService.GetUserByIdAsync(id);
+            return Ok(user);
         }
 
         //Assign Role
@@ -82,13 +99,8 @@ namespace eShop.BackendAPI.Controllers
         {
             if (!ModelState.IsValid) { return BadRequest(ModelState); }
             var result = await _userService.RoleAssignAsync(id, request);
-            if (!result) { return BadRequest(result); }
-            return Ok(new ApiResponse
-            {
-                Success = true,
-                Message = "Register Role Successfully!",
-                Data = result
-            });
+            if (!result.IsSuccessed) { return BadRequest(result); }
+            return Ok(result);
         }
     }
 }
