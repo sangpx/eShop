@@ -43,9 +43,9 @@ namespace eShop.AdminApp.Controllers
                 return View(ModelState);
             }
 
-            var token = await _userAPIClient.LoginCallAsync(request);
+            var result = await _userAPIClient.LoginCallAsync(request);
             // sau khi co Token ->  Giai ma Token
-            var userPrincipal = this.ValidateToken(token);
+            var userPrincipal = this.ValidateToken(result.ResultObj);
 
             //xay dung authentication Properties
             var authProperties = new AuthenticationProperties
@@ -55,7 +55,7 @@ namespace eShop.AdminApp.Controllers
             };
 
             //Luu Token vao mot Session
-            HttpContext.Session.SetString("Token", token);
+            HttpContext.Session.SetString("Token", result.ResultObj);
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 userPrincipal,

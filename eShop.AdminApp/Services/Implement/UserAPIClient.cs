@@ -16,22 +16,27 @@ namespace eShop.AdminApp.Services.Implement
     public class UserAPIClient : IUserAPIClient
     {
         private readonly IHttpClientFactory _clientFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration _configuration;
 
-        public UserAPIClient(IHttpClientFactory clientFactory, IConfiguration configuration)
+        public UserAPIClient(IHttpClientFactory clientFactory,
+            IHttpContextAccessor httpContextAccessor,
+            IConfiguration configuration)
         {
             _clientFactory = clientFactory;
+            _httpContextAccessor = httpContextAccessor;
             _configuration = configuration;
         }
 
         //CreateCallAsync
-        public async Task<bool> CreateCallAsync(RegisterRequest request)
+        public async Task<ApiResult<bool>> CreateCallAsync(RegisterRequest request)
         {
             var client = _clientFactory.CreateClient();
             //Port goc cua web
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-            var json = JsonConvert.SerializeObject(request);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var json = new JsonSerializerSettings { DateFormatHandling = DateFormatHandling.MicrosoftDateFormat };
+            var jsonString = JsonConvert.SerializeObject(request, json);
+            var httpContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
             /*
              *  Mỗi lần CreateClient được gọi:
                 Một phiên bản mới của HttpClientđược tạo ra.
@@ -39,27 +44,54 @@ namespace eShop.AdminApp.Services.Implement
              * */
             //Call API
             var response = await client.PostAsync($"/api/users", httpContent);
-            return response.IsSuccessStatusCode;
+            var result = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
+            }
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
         }
 
-        //Paging User
-        public async Task<PagedResult<UserViewModel>> GetUsersPagingsCallAsync(GetUserPagingRequest request)
+        //GetByIdCallAsync
+        public async Task<ApiResult<UserViewModel>> GetByIdCallAsync(Guid id)
         {
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var client = _clientFactory.CreateClient();
             //Port goc cua web
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
             //Gan Header vao moi request de Authorization
-            //client.DefaultRequestHeaders.Authorization =
-            //    new AuthenticationHeaderValue("Bearer", request.BearerToken);
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", sessions);
+            //Call API
+            var response = await client.GetAsync($"/api/users/{id}");
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiSuccessResult<UserViewModel>>(body); //chuyen doi kieu
+            }
+            return JsonConvert.DeserializeObject<ApiErrorResult<UserViewModel>>(body); //chuyen doi kieu
+        }
+
+        //GetUsersPagingsCallAsync
+        public async Task<ApiResult<PagedResult<UserViewModel>>> GetUsersPagingsCallAsync(GetUserPagingRequest request)
+        {
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            var client = _clientFactory.CreateClient();
+            //Port goc cua web
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            //Gan Header vao moi request de Authorization
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", sessions);
             //Call API
             var response = await client.GetAsync($"/api/users/paging?pageIndex=" +
                 $"{request.PageIndex}&pageSize={request.PageSize}&keyWord={request.KeyWord}");
             var body = await response.Content.ReadAsStringAsync();
-            var users = JsonConvert.DeserializeObject<PagedResult<UserViewModel>>(body); //chuyen doi kieu
+            var users = JsonConvert.DeserializeObject<ApiSuccessResult<PagedResult<UserViewModel>>>(body); //chuyen doi kieu
             return users;
         }
 
-        public async Task<string> LoginCallAsync(LoginRequest request)
+        //LoginCallAsync
+        public async Task<ApiResult<string>> LoginCallAsync(LoginRequest request)
         {
             //make http requests using ihttpclientfactory in asp.net core
             var json = JsonConvert.SerializeObject(request);
@@ -74,8 +106,38 @@ namespace eShop.AdminApp.Services.Implement
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
             //Call API
             var response = await client.PostAsync("/api/users/login", httpContent);
-            var token = await response.Content.ReadAsStringAsync();
-            return token;
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiSuccessResult<string>>(await response.Content.ReadAsStringAsync());
+            }
+            return JsonConvert.DeserializeObject<ApiErrorResult<string>>(await response.Content.ReadAsStringAsync());
+        }
+
+        //UpdateCallAsync
+        public async Task<ApiResult<bool>> UpdateCallAsync(Guid id, UserUpdateRequest request)
+        {
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            var client = _clientFactory.CreateClient();
+            //Port goc cua web
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            var json = JsonConvert.SerializeObject(request);
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            /*
+             *  Mỗi lần CreateClient được gọi:
+                Một phiên bản mới của HttpClientđược tạo ra.
+                Hành động cấu hình được gọi.
+             * */
+            //Gan Header vao moi request de Authorization
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", sessions);
+            //Call API
+            var response = await client.PutAsync($"/api/users/{id}", httpContent);
+            var result = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result); //chuyen doi kieu
+            }
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result); //chuyen doi kieu
         }
     }
 }

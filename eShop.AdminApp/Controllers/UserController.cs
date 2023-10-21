@@ -29,9 +29,8 @@ namespace eShop.AdminApp.Controllers
             _configuration = configuration;
         }
 
-        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 20)
         {
-            //var sessions = HttpContext.Session.GetString("Token");
             var request = new GetUserPagingRequest()
             {
                 KeyWord = keyword,
@@ -39,7 +38,7 @@ namespace eShop.AdminApp.Controllers
                 PageSize = pageSize
             };
             var data = await _userAPIClient.GetUsersPagingsCallAsync(request);
-            return View(data);
+            return View(data.ResultObj);
         }
 
         //Create
@@ -58,10 +57,39 @@ namespace eShop.AdminApp.Controllers
                 return View();
             }
             var result = await _userAPIClient.CreateCallAsync(request);
-            if (result)
+            if (result.IsSuccessed)
             {
-                return RedirectToAction("Index", "Home");
+                TempData["result"] = "Thêm mới thành công!";
+                return RedirectToAction("Index");
             }
+
+            ModelState.AddModelError("", result.Message);
+            return View(request);
+        }
+
+        //Update
+        [HttpGet]
+        public async Task<IActionResult> Update(Guid id)
+        {
+            var user = await _userAPIClient.GetByIdCallAsync(id);
+            return View();
+        }
+
+        //Update
+        [HttpPost]
+        public async Task<IActionResult> Update(UserUpdateRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+            var result = await _userAPIClient.UpdateCallAsync(request.Id, request);
+            if (result.IsSuccessed)
+            {
+                TempData["result"] = "Cập nhật thành công!";
+                return RedirectToAction("Index");
+            }
+            ModelState.AddModelError("", result.Message);
             return View(request);
         }
 
