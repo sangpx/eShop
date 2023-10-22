@@ -52,12 +52,7 @@ namespace eShop.BackendAPI.Controllers
             try
             {
                 var data = await _manageProductService.GetAllPaging(request);
-                return Ok(new ApiResponse
-                {
-                    Success = true,
-                    Message = "Successfully!",
-                    Data = data
-                });
+                return Ok(data);
             }
             catch (Exception ex)
             {
@@ -76,12 +71,7 @@ namespace eShop.BackendAPI.Controllers
                 {
                     return BadRequest("Cannot find product");
                 }
-                return Ok(new ApiResponse
-                {
-                    Success = true,
-                    Message = "Successfully!",
-                    Data = data
-                });
+                return Ok(data);
             }
             catch (Exception ex)
             {
@@ -131,12 +121,7 @@ namespace eShop.BackendAPI.Controllers
                 {
                     return BadRequest();
                 }
-                return Ok(new ApiResponse
-                {
-                    Success = true,
-                    Message = "Update Successfully!",
-                    Data = affectedResult
-                });
+                return Ok(affectedResult);
             }
             catch (Exception ex)
             {
@@ -155,12 +140,7 @@ namespace eShop.BackendAPI.Controllers
                 {
                     return BadRequest();
                 }
-                return Ok(new ApiResponse
-                {
-                    Success = true,
-                    Message = "Delete Successfully!",
-                    Data = affectedResult
-                });
+                return Ok(affectedResult);
             }
             catch (Exception ex)
             {
@@ -198,12 +178,7 @@ namespace eShop.BackendAPI.Controllers
                 {
                     return BadRequest("Cannot find product");
                 }
-                return Ok(new ApiResponse
-                {
-                    Success = true,
-                    Message = "Get Successfully!",
-                    Data = image
-                });
+                return Ok(image);
             }
             catch (Exception ex)
             {
@@ -253,12 +228,7 @@ namespace eShop.BackendAPI.Controllers
                 {
                     return BadRequest();
                 }
-                return Ok(new ApiResponse
-                {
-                    Success = true,
-                    Message = "Update Successfully!",
-                    Data = result
-                });
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -282,12 +252,7 @@ namespace eShop.BackendAPI.Controllers
                 {
                     return BadRequest();
                 }
-                return Ok(new ApiResponse
-                {
-                    Success = true,
-                    Message = "Delete Successfully!",
-                    Data = result
-                });
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -304,12 +269,7 @@ namespace eShop.BackendAPI.Controllers
                 if (!ModelState.IsValid) { return BadRequest(ModelState); }
                 var result = await _manageProductService.CategoryAssignAsync(id, request);
                 if (!result) { return BadRequest(result); }
-                return Ok(new ApiResponse
-                {
-                    Success = true,
-                    Message = "Register Category Successfully!",
-                    Data = result
-                });
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -325,12 +285,7 @@ namespace eShop.BackendAPI.Controllers
             try
             {
                 var products = await _manageProductService.GetFeaturedProducts(take, languageId);
-                return Ok(new ApiResponse
-                {
-                    Success = true,
-                    Message = "Successfully!",
-                    Data = products
-                });
+                return Ok(products);
             }
             catch (Exception ex)
             {

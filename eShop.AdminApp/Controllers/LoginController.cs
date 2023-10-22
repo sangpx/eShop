@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System;
 using eShop.AdminApp.Services.Interface;
 using Microsoft.Extensions.Configuration;
+using eShop.Utilities.Constants;
 
 namespace eShop.AdminApp.Controllers
 {
@@ -54,8 +55,10 @@ namespace eShop.AdminApp.Controllers
                 IsPersistent = true
             };
 
+            //Luu Default vao Session
+            HttpContext.Session.SetString(SystemConstants.AppSettings.DefaultLanguageId, _configuration["DefaultLanguageId"]);
             //Luu Token vao mot Session
-            HttpContext.Session.SetString("Token", result.ResultObj);
+            HttpContext.Session.SetString(SystemConstants.AppSettings.Token, result.ResultObj);
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 userPrincipal,
