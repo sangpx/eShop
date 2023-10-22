@@ -59,6 +59,7 @@ namespace eShop.AdminApp
 
             //Add DI
             services.AddTransient<IUserAPIClient, UserAPIClient>();
+            services.AddTransient<IProductAPIClient, ProductAPIClient>();
 
             //Add Runtime khi Chay App
             IMvcBuilder builder = services.AddRazorPages();
