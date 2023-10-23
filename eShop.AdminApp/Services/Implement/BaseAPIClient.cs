@@ -70,7 +70,6 @@ namespace eShop.AdminApp.Services.Implement
         }
 
         //Base Delete
-
         public async Task<bool> Delete(string url)
         {
             var sessions = _httpContextAccessor
