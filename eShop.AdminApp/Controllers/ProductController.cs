@@ -38,32 +38,33 @@ namespace eShop.AdminApp.Controllers
         }
 
         ////Create
-        //[HttpGet]
-        //public IActionResult Create()
-        //{
-        //    return View();
-        //}
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
 
         ////Create
-        //[HttpPost]
-        //public async Task<IActionResult> Create(RegisterRequest request)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View();
-        //    }
-        //    var result = await _userAPIClient.CreateCallAsync(request);
-        //    if (result.IsSuccessed)
-        //    {
-        //        TempData["result"] = "Thêm mới thành công!";
-        //        return RedirectToAction("Index");
-        //    }
+        [HttpPost]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> Create([FromForm] ProductCreateRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(request);
+            }
+            var result = await _productAPIClient.CreateProductCallAsync(request);
+            if (result)
+            {
+                TempData["result"] = "Thêm mới sản phẩm thành công!";
+                return RedirectToAction("Index");
+            }
 
-        //    ModelState.AddModelError("", result.Message);
-        //    return View(request);
-        //}
+            ModelState.AddModelError("", "Thêm mới sản phẩm thất bại!");
+            return View(request);
+        }
 
-        ////Update
+        //Update
         //[HttpGet]
         //public async Task<IActionResult> Update(Guid id)
         //{
