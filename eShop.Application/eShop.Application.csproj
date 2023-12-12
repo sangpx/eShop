@@ -5,6 +5,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="12.0.1" />
+		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
 		<PackageReference Include="DocumentFormat.OpenXml" Version="3.0.0-beta0002" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -15,6 +17,11 @@
 		<ProjectReference Include="..\eShop.Database\eShop.Database.csproj" />
 		<ProjectReference Include="..\eShop.Utilities\eShop.Utilities.csproj" />
 		<ProjectReference Include="..\EShop.ViewModel\eShop.ViewModels.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Catalogs\Sales\Carts\" />
+	  <Folder Include="Catalogs\Sales\Orders\" />
 	</ItemGroup>
 
 </Project>

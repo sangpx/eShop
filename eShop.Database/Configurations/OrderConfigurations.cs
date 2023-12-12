@@ -12,7 +12,6 @@ namespace eShop.Database.Configurations
     {
         public void Configure(EntityTypeBuilder<Order> builder)
         {
-
             builder.ToTable("Orders");
 
             builder.HasKey(x => x.Id);
