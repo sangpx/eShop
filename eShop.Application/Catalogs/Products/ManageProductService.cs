@@ -178,6 +178,7 @@ namespace eShop.Application.Catalogs.Products
         //Update Product
         public async Task<int> Update(ProductUpdateRequest productUpdateRequest)
         {
+            //Tim kiem San Pham
             var product = await _dbContext.Products.FindAsync(productUpdateRequest.Id);
             var productTranslation = await _dbContext.ProductTranslations
                 .FirstOrDefaultAsync(pt =>

@@ -1,14 +1,14 @@
-﻿using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
-using eShop.Application.Catalogs.Carts;
+﻿using AutoMapper;
 using eShop.Application.Catalogs.Categories;
-using eShop.Application.Catalogs.Orders;
 using eShop.Application.Catalogs.Products;
 using eShop.Application.Common;
 using eShop.Application.Systems.Roles;
 using eShop.Application.Systems.Users;
+using eShop.BackendAPI.Mappings;
 using eShop.Database.EF;
 using eShop.Database.Entities;
 using eShop.Utilities.Constants;
+using eShop.ViewModels;
 using eShop.ViewModels.Systems.Users;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -47,9 +47,18 @@ namespace eShop.BackendAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Auto Mapper Configurations
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new MappingProfile());
+            });
+
+            IMapper mapper = mapperConfig.CreateMapper();
+            services.AddSingleton(mapper);
+
             //fluent validator
-            // ta co hai cach register validator
-            // 1. register le tung cai view model nhu vay
+            // Có hai cach register validator
+            // 1. register lẻ từng cái view model như vầy
             //services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
             //services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();
 
@@ -73,8 +82,6 @@ namespace eShop.BackendAPI
             services.AddTransient<IStorageService, FileStorageService>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ICategoryService, CategoryService>();
-            services.AddTransient<IOrderService, OrderService>();
-            services.AddTransient<ICartService, CartService>();
             services.AddTransient<IRoleService, RoleService>();
             services.AddTransient<IValidator<LoginRequest>, LoginRequestValidation>();
             services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidation>();
@@ -107,6 +114,7 @@ namespace eShop.BackendAPI
                     Type = SecuritySchemeType.ApiKey,
                     Scheme = "Bearer"
                 });
+
                 // Định nghĩa bảo mật để khi chạy swagger ta phải đăng nhập để lấy token
                 // Token đó dùng để Authorize mở khóa các chức năg HTTP
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement()

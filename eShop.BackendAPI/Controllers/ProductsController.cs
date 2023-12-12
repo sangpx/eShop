@@ -104,7 +104,7 @@ namespace eShop.BackendAPI.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("{productId}")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Update([FromRoute] int productId, [FromForm] ProductUpdateRequest request)
         {
